@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SuperConnect</string>
+    <string name="title_activity_main">SuperConnect</string>
+    <string name="package_name">com.superconnect.app</string>
+    <string name="custom_url_scheme">com.superconnect.app</string>
+</resources>

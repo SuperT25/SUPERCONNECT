@@ -17,7 +17,9 @@ export default function Login() {
       const { data } = await api.post('/auth/login', form);
       login(data.token, data.user);
       toast.success(`Welcome back, ${data.user.name}!`);
-      navigate(data.user.role === 'provider' ? '/dashboard/provider' : '/dashboard/customer');
+      if (data.user.role === 'admin') navigate('/admin');
+      else if (data.user.role === 'provider') navigate('/dashboard/provider');
+      else navigate('/dashboard/customer');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {

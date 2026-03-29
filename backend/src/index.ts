@@ -11,6 +11,7 @@ import authRoutes from './routes/auth';
 import providerRoutes from './routes/providers';
 import bookingRoutes from './routes/bookings';
 import messageRoutes from './routes/messages';
+import adminRoutes from './routes/admin';
 import Message from './models/Message';
 import User from './models/User';
 
@@ -31,6 +32,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (_, res) => res.json({ message: 'SuperConnect API running' }));
 

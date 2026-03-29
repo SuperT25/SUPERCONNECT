@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import CustomerDashboard from './pages/CustomerDashboard';
 import ProviderDashboard from './pages/ProviderDashboard';
 import Chat from './pages/Chat';
+import AdminDashboard from './pages/AdminDashboard';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/dashboard/customer" element={<CustomerDashboard />} />
           <Route path="/dashboard/provider" element={<ProviderDashboard />} />
           <Route path="/chat/:bookingId" element={<Chat />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
