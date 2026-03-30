@@ -21,6 +21,7 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }} className="desktop-nav">
           <style>{`@media(max-width:600px){.desktop-nav{display:none!important}}.mobile-nav-btn{display:none}@media(max-width:600px){.mobile-nav-btn{display:flex!important}}`}</style>
           <Link to="/search" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>Find Services</Link>
+          <Link to="/bills" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>Bills</Link>
           {user ? (
             <>
               <Link to={user.role === 'provider' ? '/dashboard/provider' : '/dashboard/customer'} style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>Dashboard</Link>
@@ -45,6 +46,7 @@ export default function Navbar() {
         <div style={{ position: 'fixed', top: 56, left: 0, right: 0, background: '#1a3fa8', zIndex: 49, padding: '12px 0', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
           {[
             { to: '/search', label: 'Find Services' },
+            { to: '/bills', label: 'Bills & Top-up' },
             ...(user ? [
               { to: user.role === 'provider' ? '/dashboard/provider' : '/dashboard/customer', label: 'Dashboard' },
             ] : [
