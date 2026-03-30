@@ -90,4 +90,15 @@ router.patch('/users/:id/role', protect, adminOnly, async (req, res: Response) =
   }
 });
 
+// Get all messages for a booking (admin)
+router.get('/chats/:bookingId', protect, adminOnly, async (req, res: Response) => {
+  try {
+    const Message = (await import('../models/Message')).default;
+    const messages = await Message.find({ booking: req.params.bookingId }).sort({ createdAt: 1 });
+    res.json(messages);
+  } catch {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;

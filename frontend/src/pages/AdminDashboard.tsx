@@ -10,7 +10,7 @@ interface UserItem { _id: string; name: string; email: string; phone: string; ro
 interface ProviderItem { _id: string; user: { name: string; email: string }; category: string; rating: number; totalReviews: number; isAvailable: boolean; hourlyRate: number; }
 interface BookingItem { _id: string; service: string; status: string; totalAmount: number; scheduledDate: string; customer: { name: string; email: string }; provider: { user: { name: string } }; }
 
-type Tab = 'overview' | 'users' | 'providers' | 'bookings';
+type Tab = 'overview' | 'users' | 'providers' | 'bookings' | 'chats';
 
 const statusColors: Record<string, { bg: string; color: string }> = {
   pending: { bg: '#fef9c3', color: '#854d0e' },
@@ -28,6 +28,8 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [providers, setProviders] = useState<ProviderItem[]>([]);
   const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [selectedBookingChat, setSelectedBookingChat] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<{ senderName: string; text: string; createdAt: string }[]>([]);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -39,12 +41,19 @@ export default function AdminDashboard() {
     if (tab === 'users' && users.length === 0) loadUsers();
     if (tab === 'providers' && providers.length === 0) loadProviders();
     if (tab === 'bookings' && bookings.length === 0) loadBookings();
+    if (tab === 'chats' && bookings.length === 0) loadBookings();
   }, [tab]);
 
   const loadStats = () => api.get('/admin/stats').then(r => setStats(r.data)).catch(() => {});
   const loadUsers = () => api.get('/admin/users').then(r => setUsers(r.data)).catch(() => {});
   const loadProviders = () => api.get('/admin/providers').then(r => setProviders(r.data)).catch(() => {});
   const loadBookings = () => api.get('/admin/bookings').then(r => setBookings(r.data)).catch(() => {});
+
+  const viewChat = async (bookingId: string) => {
+    setSelectedBookingChat(bookingId);
+    const { data } = await api.get(`/admin/chats/${bookingId}`);
+    setChatMessages(data);
+  };
 
   const deleteProvider = async (id: string) => {
     if (!confirm('Remove this provider?')) return;
@@ -95,7 +104,7 @@ export default function AdminDashboard() {
 
       {/* Tabs */}
       <div className="admin-tabs">
-        {(['overview', 'users', 'providers', 'bookings'] as Tab[]).map(t => (
+        {(['overview', 'users', 'providers', 'bookings', 'chats'] as Tab[]).map(t => (
           <button key={t} className={`admin-tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -199,6 +208,53 @@ export default function AdminDashboard() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+      {/* Chats */}
+      {tab === 'chats' && (
+        <div style={{ display: 'grid', gridTemplateColumns: selectedBookingChat ? '1fr 1fr' : '1fr', gap: 16 }}>
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr><th>Service</th><th>Customer</th><th>Provider</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody>
+                {bookings.map(b => (
+                  <tr key={b._id} style={{ background: selectedBookingChat === b._id ? '#eff6ff' : '' }}>
+                    <td style={{ fontWeight: 600 }}>{b.service}</td>
+                    <td>{b.customer?.name}</td>
+                    <td>{b.provider?.user?.name}</td>
+                    <td><span style={{ padding: '2px 8px', borderRadius: 12, fontSize: '0.75rem', fontWeight: 600, background: '#f3f4f6', color: '#374151' }}>{b.status}</span></td>
+                    <td>
+                      <button onClick={() => viewChat(b._id)} style={{ padding: '4px 10px', background: '#1a3fa8', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}>
+                        View Chat
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {selectedBookingChat && (
+            <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', maxHeight: 500 }}>
+              <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 700, color: '#1a3fa8' }}>Chat Messages</span>
+                <button onClick={() => setSelectedBookingChat(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '1.2rem' }}>×</button>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10, background: '#f0f4ff' }}>
+                {chatMessages.length === 0 && <p style={{ color: '#9ca3af', textAlign: 'center', fontSize: '0.85rem' }}>No messages yet</p>}
+                {chatMessages.map((m, i) => (
+                  <div key={i}>
+                    <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: 2 }}>{m.senderName} · {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div style={{ background: '#fff', padding: '8px 12px', borderRadius: 10, fontSize: '0.88rem', color: '#111', boxShadow: '0 1px 3px rgba(0,0,0,0.07)', display: 'inline-block', maxWidth: '85%' }}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
