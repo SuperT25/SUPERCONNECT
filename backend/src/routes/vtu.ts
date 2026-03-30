@@ -1,6 +1,8 @@
 import { Router, Response } from 'express';
 import https from 'https';
 import { protect, AuthRequest } from '../middleware/auth';
+import VTUTransaction from '../models/VTUTransaction';
+import VTUTransaction from '../models/VTUTransaction';
 
 const router = Router();
 
@@ -55,6 +57,7 @@ router.post('/airtime', protect, async (req: AuthRequest, res: Response) => {
       amount,
       phone,
     });
+    await VTUTransaction.create({ user: req.userId, type: 'Airtime', serviceID: network, amount: Number(amount), phone, status: result?.code === '000' ? 'success' : 'failed', reference: result?.content?.transactions?.transactionId || '', details: `${network.toUpperCase()} airtime` });
     res.json(result);
   } catch (err) {
     console.error('Airtime error:', err);
@@ -132,6 +135,76 @@ router.post('/cable', protect, async (req: AuthRequest, res: Response) => {
   } catch (err) {
     console.error('Cable error:', err);
     res.status(500).json({ message: 'Failed to process cable subscription' });
+  }
+});
+
+// Verify meter number
+router.post('/verify-meter', protect, async (req, res: Response) => {
+  try {
+    const { serviceID, billersCode, type } = req.body;
+    const result = await vtpassRequest('/merchant-verify', { serviceID, billersCode, type });
+    res.json(result);
+  } catch {
+    res.status(500).json({ message: 'Failed to verify meter' });
+  }
+});
+
+// Pay Electricity
+router.post('/electricity', protect, async (req: AuthRequest, res: Response) => {
+  try {
+    const { serviceID, meterNumber, variationType, amount, phone } = req.body;
+    const result = await vtpassRequest('/pay', {
+      request_id: generateRequestId(),
+      serviceID,
+      billersCode: meterNumber,
+      variation_code: variationType,
+      amount,
+      phone,
+    });
+    res.json(result);
+  } catch (err) {
+    console.error('Electricity error:', err);
+    res.status(500).json({ message: 'Failed to process electricity payment' });
+  }
+});
+
+// Get education plans (WAEC, JAMB)
+router.get('/edu-plans/:serviceID', async (req, res: Response) => {
+  try {
+    const result = await vtpassRequest(`/service-variations?serviceID=${req.params.serviceID}`);
+    res.json(result);
+  } catch {
+    res.status(500).json({ message: 'Failed to fetch plans' });
+  }
+});
+
+// Get transaction history
+router.get('/history', protect, async (req: AuthRequest, res: Response) => {
+  try {
+    const transactions = await VTUTransaction.find({ user: req.userId }).sort({ createdAt: -1 }).limit(50);
+    res.json(transactions);
+  } catch {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Pay Education
+router.post('/education', protect, async (req: AuthRequest, res: Response) => {
+  try {
+    const { serviceID, variationCode, amount, phone, billersCode } = req.body;
+    const result = await vtpassRequest('/pay', {
+      request_id: generateRequestId(),
+      serviceID,
+      billersCode: billersCode || phone,
+      variation_code: variationCode,
+      amount,
+      phone,
+      quantity: 1,
+    });
+    res.json(result);
+  } catch (err) {
+    console.error('Education error:', err);
+    res.status(500).json({ message: 'Failed to process education payment' });
   }
 });
 
