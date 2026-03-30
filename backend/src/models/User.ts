@@ -8,6 +8,8 @@ export interface IUser extends Document {
   role: 'customer' | 'provider';
   state: string;
   city: string;
+  resetToken?: string;
+  resetTokenExpiry?: Date;
   createdAt: Date;
 }
 
