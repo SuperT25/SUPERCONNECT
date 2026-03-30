@@ -55,6 +55,15 @@ export default function AdminDashboard() {
     } catch { toast.error('Failed'); }
   };
 
+  const deleteUser = async (id: string, name: string) => {
+    if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+    try {
+      await api.delete(`/admin/users/${id}`);
+      toast.success('User deleted');
+      setUsers(u => u.filter(x => x._id !== id));
+    } catch { toast.error('Failed'); }
+  };
+
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px 16px' }}>
       <style>{`
@@ -116,7 +125,7 @@ export default function AdminDashboard() {
         <div className="table-wrap">
           <table className="data-table">
             <thead>
-              <tr><th>Name</th><th>Email</th><th>Role</th><th>Location</th><th>Joined</th></tr>
+              <tr><th>Name</th><th>Email</th><th>Role</th><th>Location</th><th>Joined</th><th></th></tr>
             </thead>
             <tbody>
               {users.map(u => (
@@ -126,6 +135,13 @@ export default function AdminDashboard() {
                   <td><span style={{ padding: '2px 8px', borderRadius: 12, fontSize: '0.75rem', fontWeight: 600, background: u.role === 'admin' ? '#fef9c3' : u.role === 'provider' ? '#dbeafe' : '#f3f4f6', color: u.role === 'admin' ? '#854d0e' : u.role === 'provider' ? '#1e40af' : '#374151' }}>{u.role}</span></td>
                   <td>{u.city}, {u.state}</td>
                   <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    {u.role !== 'admin' && (
+                      <button onClick={() => deleteUser(u._id, u.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: 4 }}>
+                        <Trash2 size={15} />
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

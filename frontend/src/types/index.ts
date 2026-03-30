@@ -19,6 +19,10 @@ export interface Provider {
   totalReviews: number;
   isAvailable: boolean;
   yearsOfExperience: number;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  paystackSubaccountCode: string;
 }
 
 export interface Booking {

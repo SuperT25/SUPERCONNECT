@@ -21,7 +21,11 @@ export default function ProviderDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [profile, setProfile] = useState<Provider | null>(null);
   const [showProfileForm, setShowProfileForm] = useState(false);
+  const [showBankForm, setShowBankForm] = useState(false);
   const [profileForm, setProfileForm] = useState({ category: '', bio: '', skills: '', hourlyRate: '', yearsOfExperience: '', address: '', isAvailable: true });
+  const [bankForm, setBankForm] = useState({ bankCode: '', bankName: '', accountNumber: '', accountName: '' });
+  const [banks, setBanks] = useState<{ name: string; code: string }[]>([]);
+  const [resolving, setResolving] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -41,6 +45,40 @@ export default function ProviderDashboard() {
         setProfileForm({ category: p.category, bio: p.bio, skills: p.skills.join(', '), hourlyRate: String(p.hourlyRate), yearsOfExperience: String(p.yearsOfExperience), address: p.address, isAvailable: p.isAvailable });
       }
     } catch {}
+  };
+
+  const loadBanks = async () => {
+    if (banks.length > 0) return;
+    try {
+      const { data } = await api.get('/paystack/banks');
+      setBanks(data);
+    } catch {}
+  };
+
+  const resolveAccount = async () => {
+    if (!bankForm.accountNumber || !bankForm.bankCode) return;
+    setResolving(true);
+    try {
+      const { data } = await api.post('/paystack/resolve-account', { accountNumber: bankForm.accountNumber, bankCode: bankForm.bankCode });
+      setBankForm(f => ({ ...f, accountName: data.account_name }));
+      toast.success(`Account: ${data.account_name}`);
+    } catch {
+      toast.error('Could not verify account number');
+    } finally {
+      setResolving(false);
+    }
+  };
+
+  const saveBank = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/paystack/setup-bank', { ...bankForm });
+      toast.success('Bank account saved!');
+      setShowBankForm(false);
+      fetchData();
+    } catch {
+      toast.error('Failed to save bank account');
+    }
   };
 
   const updateStatus = async (id: string, status: string) => {
@@ -96,6 +134,9 @@ export default function ProviderDashboard() {
         <div className="pdash-btns">
           <button onClick={() => setShowProfileForm(true)} style={{ padding: '8px 14px', background: '#1a3fa8', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
             {profile ? 'Edit Profile' : 'Setup Profile'}
+          </button>
+          <button onClick={() => { loadBanks(); setShowBankForm(true); }} style={{ padding: '8px 14px', background: profile?.paystackSubaccountCode ? '#059669' : '#f97316', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
+            {profile?.paystackSubaccountCode ? '✓ Bank Set' : 'Add Bank'}
           </button>
           <button onClick={() => { logout(); navigate('/'); }} style={{ padding: '8px 14px', border: '1px solid #d1d5db', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: '0.85rem' }}>Logout</button>
         </div>
@@ -182,6 +223,36 @@ export default function ProviderDashboard() {
               <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
                 <button type="button" onClick={() => setShowProfileForm(false)} style={{ flex: 1, padding: 12, border: '1px solid #d1d5db', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>Cancel</button>
                 <button type="submit" style={{ flex: 1, padding: 12, background: '#1a3fa8', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Save Profile</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Bank Modal */}
+      {showBankForm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 16, overflowY: 'auto' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 480, margin: 'auto' }}>
+            <h3 style={{ margin: '0 0 6px' }}>Bank Account Setup</h3>
+            <p style={{ margin: '0 0 16px', color: '#6b7280', fontSize: '0.85rem' }}>SuperConnect takes 10% commission. 90% goes to your account.</p>
+            <form onSubmit={saveBank} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <select value={bankForm.bankCode} onChange={e => { const b = banks.find(x => x.code === e.target.value); setBankForm(f => ({ ...f, bankCode: e.target.value, bankName: b?.name || '', accountName: '' })); }} required style={inputStyle}>
+                <option value="">Select your bank</option>
+                {banks.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
+              </select>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input placeholder="Account number" value={bankForm.accountNumber} onChange={e => setBankForm(f => ({ ...f, accountNumber: e.target.value }))} maxLength={10} required style={{ ...inputStyle, flex: 1 }} />
+                <button type="button" onClick={resolveAccount} disabled={resolving || bankForm.accountNumber.length < 10} style={{ padding: '10px 14px', background: '#6b7280', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+                  {resolving ? '...' : 'Verify'}
+                </button>
+              </div>
+              <input placeholder="Account name (your name)" value={bankForm.accountName} onChange={e => setBankForm(f => ({ ...f, accountName: e.target.value }))} required style={inputStyle} />
+              {bankForm.accountName && bankForm.accountName.length > 2 && (
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '10px 14px', color: '#166534', fontSize: '0.85rem' }}>
+                  ✓ Ready to save
+                </div>
+              )}              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                <button type="button" onClick={() => setShowBankForm(false)} style={{ flex: 1, padding: 12, border: '1px solid #d1d5db', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" disabled={!bankForm.accountName} style={{ flex: 1, padding: 12, background: '#1a3fa8', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Save Bank Account</button>
               </div>
             </form>
           </div>

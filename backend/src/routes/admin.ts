@@ -6,7 +6,6 @@ import { protect, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-// Admin guard middleware
 const adminOnly = (req: AuthRequest, res: Response, next: Function) => {
   if (req.userRole !== 'admin') return res.status(403).json({ message: 'Admin access only' });
   next();
@@ -61,21 +60,31 @@ router.get('/bookings', protect, adminOnly, async (_req, res: Response) => {
   }
 });
 
-// Suspend / unsuspend user
-router.patch('/users/:id/role', protect, adminOnly, async (req, res: Response) => {
+// Delete user
+router.delete('/users/:id', protect, adminOnly, async (req, res: Response) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, { role: req.body.role }, { new: true }).select('-password');
-    res.json(user);
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted' });
   } catch {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Delete provider profile
+// Delete provider
 router.delete('/providers/:id', protect, adminOnly, async (req, res: Response) => {
   try {
     await Provider.findByIdAndDelete(req.params.id);
     res.json({ message: 'Provider removed' });
+  } catch {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update user role
+router.patch('/users/:id/role', protect, adminOnly, async (req, res: Response) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { role: req.body.role }, { new: true }).select('-password');
+    res.json(user);
   } catch {
     res.status(500).json({ message: 'Server error' });
   }

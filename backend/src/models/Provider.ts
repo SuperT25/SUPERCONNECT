@@ -13,6 +13,10 @@ export interface IProvider extends Document {
   totalReviews: number;
   isAvailable: boolean;
   yearsOfExperience: number;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  paystackSubaccountCode: string;
 }
 
 const ProviderSchema = new Schema<IProvider>({
@@ -28,6 +32,10 @@ const ProviderSchema = new Schema<IProvider>({
   totalReviews: { type: Number, default: 0 },
   isAvailable: { type: Boolean, default: true },
   yearsOfExperience: { type: Number, default: 0 },
+  bankName: { type: String, default: '' },
+  accountNumber: { type: String, default: '' },
+  accountName: { type: String, default: '' },
+  paystackSubaccountCode: { type: String, default: '' },
 }, { timestamps: true });
 
 export default mongoose.model<IProvider>('Provider', ProviderSchema);

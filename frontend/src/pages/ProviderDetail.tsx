@@ -36,6 +36,7 @@ export default function ProviderDetail() {
       email: user.email || 'customer@superconnect.ng',
       amount: totalAmount,
       name: user.name,
+      subaccountCode: provider?.paystackSubaccountCode || undefined,
       onSuccess: async (reference) => {
         try {
           await api.post('/bookings', {
