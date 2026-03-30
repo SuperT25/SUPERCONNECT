@@ -2,7 +2,6 @@ import { Router, Response } from 'express';
 import https from 'https';
 import { protect, AuthRequest } from '../middleware/auth';
 import VTUTransaction from '../models/VTUTransaction';
-import VTUTransaction from '../models/VTUTransaction';
 
 const router = Router();
 
