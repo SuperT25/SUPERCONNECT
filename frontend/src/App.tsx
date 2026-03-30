@@ -11,6 +11,8 @@ import CustomerDashboard from './pages/CustomerDashboard';
 import ProviderDashboard from './pages/ProviderDashboard';
 import Chat from './pages/Chat';
 import AdminDashboard from './pages/AdminDashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 export default function App() {
   return (
@@ -28,6 +30,8 @@ export default function App() {
           <Route path="/dashboard/provider" element={<ProviderDashboard />} />
           <Route path="/chat/:bookingId" element={<Chat />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

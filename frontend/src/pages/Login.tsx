@@ -35,6 +35,9 @@ export default function Login() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <input type="email" placeholder="Email address" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required style={inputStyle} />
           <input type="password" placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required style={inputStyle} />
+          <div style={{ textAlign: 'right', marginTop: -8 }}>
+            <Link to="/forgot-password" style={{ color: '#1a3fa8', fontSize: '0.85rem' }}>Forgot password?</Link>
+          </div>
           <button type="submit" disabled={loading} style={btnStyle}>{loading ? 'Signing in...' : 'Sign In'}</button>
         </form>
         <p style={{ textAlign: 'center', marginTop: 20, color: '#6b7280', fontSize: '0.9rem' }}>

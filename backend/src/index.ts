@@ -13,6 +13,7 @@ import bookingRoutes from './routes/bookings';
 import messageRoutes from './routes/messages';
 import adminRoutes from './routes/admin';
 import paystackRoutes from './routes/paystack';
+import passwordRoutes from './routes/password';
 import Message from './models/Message';
 import User from './models/User';
 
@@ -35,6 +36,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/paystack', paystackRoutes);
+app.use('/api/auth', passwordRoutes);
 
 app.get('/', (_, res) => res.json({ message: 'SuperConnect API running' }));
 

@@ -19,6 +19,8 @@ const UserSchema = new Schema<IUser>({
   role: { type: String, enum: ['customer', 'provider', 'admin'], default: 'customer' },
   state: { type: String, default: '' },
   city: { type: String, default: '' },
+  resetToken: { type: String },
+  resetTokenExpiry: { type: Date },
 }, { timestamps: true });
 
 export default mongoose.model<IUser>('User', UserSchema);
