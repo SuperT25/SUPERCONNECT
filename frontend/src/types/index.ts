@@ -53,6 +53,10 @@ export const SERVICE_CATEGORIES = [
   'Bricklayer',
   'Security Guard',
   'Driver',
+  'Phone Repair Technician',
+  'Computer Repair Technician',
+  'Phone Seller',
+  'Computer Seller',
 ];
 
 export const NIGERIAN_STATES = [

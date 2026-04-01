@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Zap, Wrench, Car, Sparkles, Hammer, Paintbrush } from 'lucide-react';
+import { Search, Zap, Wrench, Car, Sparkles, Hammer, Paintbrush, Smartphone, Monitor, ShoppingBag, Shield, Wind, Flame, Truck, Laptop } from 'lucide-react';
 import { SERVICE_CATEGORIES } from '../types';
 
 const categoryIcons: Record<string, React.ReactElement> = {
@@ -10,6 +10,16 @@ const categoryIcons: Record<string, React.ReactElement> = {
   Cleaner: <Sparkles size={26} />,
   Carpenter: <Hammer size={26} />,
   Painter: <Paintbrush size={26} />,
+  'Generator Technician': <Flame size={26} />,
+  'AC Technician': <Wind size={26} />,
+  Welder: <Hammer size={26} />,
+  Bricklayer: <Hammer size={26} />,
+  'Security Guard': <Shield size={26} />,
+  Driver: <Truck size={26} />,
+  'Phone Repair Technician': <Smartphone size={26} />,
+  'Computer Repair Technician': <Monitor size={26} />,
+  'Phone Seller': <ShoppingBag size={26} />,
+  'Computer Seller': <Laptop size={26} />,
 };
 
 export default function Home() {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, Wifi, Tv, Zap, GraduationCap, Clock, ChevronRight } from 'lucide-react';
 import api from '../api';
@@ -7,6 +7,14 @@ import { usePaystack } from '../hooks/usePaystack';
 import toast from 'react-hot-toast';
 
 type Tab = 'airtime' | 'data' | 'cable' | 'electricity' | 'education' | 'history';
+
+type AirtimeForm = { network: string; phone: string; amount: string };
+type DataForm = { network: string; phone: string; variationCode: string; amount: string };
+type CableForm = { provider: string; smartCard: string; variationCode: string; amount: string; phone: string };
+type ElecForm = { serviceID: string; meterNumber: string; variationType: string; amount: string; phone: string };
+type EduForm = { serviceID: string; variationCode: string; amount: string; phone: string; billersCode: string };
+type VtuPlan = { variation_code: string; name: string; variation_amount: string };
+type VtuHistory = { type: string; details: string; phone: string; createdAt: string; amount: number; status: string };
 
 const NETWORKS = ['mtn', 'airtel', 'glo', '9mobile'];
 const CABLE_PROVIDERS = [
@@ -38,17 +46,17 @@ export default function VTU() {
   const { pay } = usePaystack();
   const [tab, setTab] = useState<Tab>('airtime');
 
-  const [airtimeForm, setAirtimeForm] = useState({ network: 'mtn', phone: '', amount: '' });
-  const [dataForm, setDataForm] = useState({ network: 'mtn', phone: '', variationCode: '', amount: '' });
-  const [dataPlans, setDataPlans] = useState<any[]>([]);
-  const [cableForm, setCableForm] = useState({ provider: 'dstv', smartCard: '', variationCode: '', amount: '', phone: '' });
-  const [cablePlans, setCablePlans] = useState<any[]>([]);
+  const [airtimeForm, setAirtimeForm] = useState<AirtimeForm>({ network: 'mtn', phone: '', amount: '' });
+  const [dataForm, setDataForm] = useState<DataForm>({ network: 'mtn', phone: '', variationCode: '', amount: '' });
+  const [dataPlans, setDataPlans] = useState<VtuPlan[]>([]);
+  const [cableForm, setCableForm] = useState<CableForm>({ provider: 'dstv', smartCard: '', variationCode: '', amount: '', phone: '' });
+  const [cablePlans, setCablePlans] = useState<VtuPlan[]>([]);
   const [smartCardName, setSmartCardName] = useState('');
-  const [elecForm, setElecForm] = useState({ serviceID: 'ikeja-electric', meterNumber: '', variationType: 'prepaid', amount: '', phone: '' });
+  const [elecForm, setElecForm] = useState<ElecForm>({ serviceID: 'ikeja-electric', meterNumber: '', variationType: 'prepaid', amount: '', phone: '' });
   const [meterName, setMeterName] = useState('');
-  const [eduForm, setEduForm] = useState({ serviceID: 'waec', variationCode: '', amount: '', phone: '', billersCode: '' });
-  const [eduPlans, setEduPlans] = useState<any[]>([]);
-  const [history, setHistory] = useState<any[]>([]);
+  const [eduForm, setEduForm] = useState<EduForm>({ serviceID: 'waec', variationCode: '', amount: '', phone: '', billersCode: '' });
+  const [eduPlans, setEduPlans] = useState<VtuPlan[]>([]);
+  const [history, setHistory] = useState<VtuHistory[]>([]);
 
   useEffect(() => { if (!user) navigate('/login'); }, [user]);
 
