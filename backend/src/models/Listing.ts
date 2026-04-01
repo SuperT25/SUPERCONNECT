@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-export interface IListing extends Document {
+interface IListing {
   seller: mongoose.Types.ObjectId;
   title: string;
   description: string;
@@ -34,4 +34,4 @@ const ListingSchema = new Schema<IListing>({
   views: { type: Number, default: 0 },
 }, { timestamps: true });
 
-export default mongoose.model<IListing>('Listing', ListingSchema);
+export default mongoose.model('Listing', ListingSchema);
